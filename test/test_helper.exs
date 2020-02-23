@@ -28,7 +28,8 @@ defmodule ExpanderTest do
         for {pattern, expansion} <- cases do
           quote do
             test "expand #{unquote(pattern)} == #{unquote(expansion)}" do
-              assert YuriTemplate.expand!(unquote(pattern), unquote(@substitutes)) == unquote(expansion)
+              assert YuriTemplate.expand!(unquote(pattern), unquote(@substitutes)) ==
+                       unquote(expansion)
             end
           end
         end
