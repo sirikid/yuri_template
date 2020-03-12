@@ -6,10 +6,6 @@ defmodule YuriTemplate.UnsafeExpander do
 
   @behaviour YuriTemplate.Expander
 
-  @doc """
-      iex> YuriTemplate.UnsafeExpander.expand("https://example.org", %{deffered: "{?v}"}, [:deffered])
-      "https://example.org{?v}"
-  """
   @impl true
   def expand(acc, _substitutes, []), do: acc
 
