@@ -1,0 +1,46 @@
+#+title: Yuri Template -- a RFC6570 implementation
+#+property: header-args:elixir :script mix :session readme :exports both
+* Examples
+  If your viewing this file on Github you should know that it ignores
+  results. Even if ~:exports both~ specified.
+
+  #+begin_src elixir
+  YuriTemplate.expand!("https://ja.wikipedia.org/wiki/{title}", title: "少女セクト")
+  #+end_src
+
+  #+RESULTS:
+  : "https://ja.wikipedia.org/wiki/%E5%B0%91%E5%A5%B3%E3%82%BB%E3%82%AF%E3%83%88"
+
+  #+begin_src elixir
+  YuriTemplate.expand!("https:/{/path*}", path: ~w(anilist.co anime 10495 Yuru-Yuri))
+  #+end_src
+
+  #+RESULTS:
+  : "https://anilist.co/anime/10495/Yuru-Yuri"
+
+  #+begin_src elixir
+  YuriTemplate.expand!(
+    "https://gelbooru.com/index.php{?query*}",
+    query: [{"page", "post"}, {"s", "list"}, {"tags", "tenjou_utena"}]
+  )
+  #+end_src
+
+  #+RESULTS:
+  : "https://gelbooru.com/index.php?page=post&s=list&tags=tenjou_utena"
+
+* Copyright notice
+  #+begin_example
+  Copyright 2020 Ivan Sokolov
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+  #+end_example
