@@ -1,4 +1,4 @@
-defmodule YuriTemplate.FormContinuationExpander do
+defmodule YuriTemplate.QueryContinuationExpander do
   @behaviour YuriTemplate.Expander
 
   @impl true

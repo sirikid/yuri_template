@@ -1,4 +1,4 @@
-defmodule YuriTemplate.FormContinuationExpanderTest do
+defmodule YuriTemplate.QueryContinuationExpanderTest do
   use ExpanderTest,
     cases: [
       {"{&who}", "&who=fred"},

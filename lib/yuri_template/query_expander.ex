@@ -64,7 +64,7 @@ defmodule YuriTemplate.QueryExpander do
 
   @spec continue_expand(iodata, Access.t(), YuriTemplate.Expander.spec()) :: iodata
   def continue_expand(acc, substitutes, vars) do
-    YuriTemplate.FormContinuationExpander.expand(acc, substitutes, vars)
+    YuriTemplate.QueryContinuationExpander.expand(acc, substitutes, vars)
   end
 
   @spec encode(String.t()) :: String.t()
