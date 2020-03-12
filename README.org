@@ -1,8 +1,8 @@
 #+title: Yuri Template -- a RFC6570 implementation
 #+property: header-args:elixir :script mix :session readme :exports both
 * Examples
-  If your viewing this file on Github you should know that it ignores
-  results. Even if ~:exports both~ specified.
+  If you're viewing this file on Github you should know that it ignores
+  results. Even when ~:exports both~ specified.
 
   #+begin_src elixir
   YuriTemplate.expand!("https://ja.wikipedia.org/wiki/{title}", title: "少女セクト")
@@ -12,7 +12,7 @@
   : "https://ja.wikipedia.org/wiki/%E5%B0%91%E5%A5%B3%E3%82%BB%E3%82%AF%E3%83%88"
 
   #+begin_src elixir
-  YuriTemplate.expand!("https:/{/path*}", path: ~w(anilist.co anime 10495 Yuru-Yuri))
+  YuriTemplate.expand!("https://anilist.co{/path*}", path: ~w(anime 10495 Yuru-Yuri))
   #+end_src
 
   #+RESULTS:
