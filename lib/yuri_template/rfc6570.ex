@@ -53,16 +53,19 @@ defmodule YuriTemplate.RFC6570 do
 
   @spec expand_varlist(iodata, op | nil, varlist, Access.t()) :: iodata
   defp expand_varlist(acc, op, varlist, substitutes) do
+    alias YuriTemplate, as: YT
+
     case op do
-      nil -> YuriTemplate.SimpleExpander.expand(acc, substitutes, varlist)
-      ?\+ -> YuriTemplate.ReservedExpander.expand(acc, substitutes, varlist)
-      ?\# -> YuriTemplate.FragmentExpander.expand(acc, substitutes, varlist)
-      ?\. -> YuriTemplate.LabelExpander.expand(acc, substitutes, varlist)
-      ?\/ -> YuriTemplate.PathExpander.expand(acc, substitutes, varlist)
-      ?\; -> YuriTemplate.ParameterExpander.expand(acc, substitutes, varlist)
-      ?\? -> YuriTemplate.QueryExpander.expand(acc, substitutes, varlist)
-      ?\& -> YuriTemplate.FormContinuationExpander.expand(acc, substitutes, varlist)
-      _op -> YuriTemplate.SimpleExpander.expand(acc, substitutes, varlist)
+      nil -> YT.SimpleExpander
+      ?\+ -> YT.ReservedExpander
+      ?\# -> YT.FragmentExpander
+      ?\. -> YT.LabelExpander
+      ?\/ -> YT.PathExpander
+      ?\; -> YT.ParameterExpander
+      ?\? -> YT.QueryExpander
+      ?\& -> YT.QueryContinuationExpander
+      _op -> YT.SimpleExpander
     end
+    |> apply(:expand, [acc, substitutes, varlist])
   end
 end
