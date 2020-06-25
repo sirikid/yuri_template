@@ -1,35 +1,54 @@
 
 # Table of Contents
 
-1.  [Examples](#org777483e)
-2.  [Copyright notice](#orge479ba0)
+1.  [What](#org524421c)
+2.  [Alternatives](#org8cc01bd)
+    1.  [`uri_template`](#org6b190c9)
+    2.  [URI](#orga801b78)
+3.  [Examples](#org4afad11)
+4.  [Copyright notice](#org3ef8778)
 
 
 
-<a id="org777483e"></a>
+<a id="org524421c"></a>
+
+# What
+
+ [RFC6570](https://tools.ietf.org/html/rfc6570) describes the template language for URIs. It can be used to
+generate hierarchical URIs, queries, fragments, and more.
+
+
+<a id="org8cc01bd"></a>
+
+# Alternatives
+
+
+<a id="org6b190c9"></a>
+
+## [`uri_template`](https://hex.pm/packages/uri_template)
+
+Another implementation of the same RFC. Uses regular expressions to
+parse templates and can silently ignore errors in them.
+
+
+<a id="orga801b78"></a>
+
+## [URI](https://hexdocs.pm/elixir/URI.html)
+
+Built-in module for managing URIs. It does not support templates,
+but can handle simple tasks, such as encoding a query.
+
+
+<a id="org4afad11"></a>
 
 # Examples
 
-If you're viewing this file on Github you should know that it ignores
-results. Even when `:exports both` specified.
+    YuriTemplate.expand!("https://tools.ietf.org{/path*}", path: ["html", "rfc6570"])
 
-    YuriTemplate.expand!("https://ja.wikipedia.org/wiki/{title}", title: "少女セクト")
-
-    "https://ja.wikipedia.org/wiki/%E5%B0%91%E5%A5%B3%E3%82%BB%E3%82%AF%E3%83%88"
-
-    YuriTemplate.expand!("https://anilist.co{/path*}", path: ~w(anime 10495 Yuru-Yuri))
-
-    "https://anilist.co/anime/10495/Yuru-Yuri"
-
-    YuriTemplate.expand!(
-      "https://gelbooru.com/index.php{?query*}",
-      query: [{"page", "post"}, {"s", "list"}, {"tags", "tenjou_utena"}]
-    )
-
-    "https://gelbooru.com/index.php?page=post&s=list&tags=tenjou_utena"
+    "https://tools.ietf.org/html/rfc6570"
 
 
-<a id="orge479ba0"></a>
+<a id="org3ef8778"></a>
 
 # Copyright notice
 
