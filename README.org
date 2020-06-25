@@ -1,5 +1,8 @@
 #+title: Yuri Template -- an RFC6570 implementation
 #+property: header-args:elixir :script mix :session readme :exports both
+#+begin_export markdown
+[![builds.sr.ht status](https://builds.sr.ht/~sokolov/yuri_template.svg)](https://builds.sr.ht/~sokolov/yuri_template?)
+#+end_export
 * What
    [[https://tools.ietf.org/html/rfc6570][RFC6570]] describes the template language for URIs. It can be used to
   generate hierarchical URIs, queries, fragments, and more.
