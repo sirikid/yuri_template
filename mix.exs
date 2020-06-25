@@ -27,8 +27,8 @@ defmodule YuriTemplate.MixProject do
   defp deps do
     [
       {:nimble_parsec, "~> 0.5.3"},
-      {:dialyxir, "~> 0.5.1", only: :dev, runtime: false},
-      {:credo, "~> 1.3.0", only: :dev, runtime: false}
+      {:dialyxir, "~> 0.5.1", only: :dev, runtime: false}
+      # {:credo, "~> 1.3.0", only: :dev, runtime: false}
     ]
   end
 end
