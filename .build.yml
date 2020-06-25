@@ -2,12 +2,19 @@ image: alpine/3.12
 arch: x86_64
 packages:
   - elixir
+sources:
+  - https://git.sr.ht/~sokolov/yuri_template
 tasks:
-  setup: |
-    mix local.rebar --force
-    mix local.hex --force
-    mix deps.get
-  build: |
-    mix compile
-  test: |
-    mix test
+  - setup: |
+      mix local.rebar --force
+      mix local.hex --force
+  - build: |
+      cd yuri_template
+      mix deps.get
+      mix compile
+  - test: |
+      cd yuri_template
+      mix test
+  - cover: |
+      cd yuri_template
+      mix test --cover
