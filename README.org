@@ -1,4 +1,4 @@
-#+title: Yuri Template -- a RFC6570 implementation
+#+title: Yuri Template -- an RFC6570 implementation
 #+property: header-args:elixir :script mix :session readme :exports both
 * Examples
   If you're viewing this file on Github you should know that it ignores
