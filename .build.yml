@@ -1,0 +1,13 @@
+image: alpine/3.12
+arch: x86_64
+packages:
+  - elixir
+tasks:
+  setup: |
+    mix local.rebar --force
+    mix local.hex --force
+    mix deps.get
+  build: |
+    mix compile
+  test: |
+    mix test
