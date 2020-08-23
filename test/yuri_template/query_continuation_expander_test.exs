@@ -12,4 +12,20 @@ defmodule YuriTemplate.QueryContinuationExpanderTest do
       {"{&keys}", "&keys=semi,%3B,dot,.,comma,%2C"},
       {"{&keys*}", "&semi=%3B&dot=.&comma=%2C"}
     ]
+
+  describe "expand/3" do
+    alias YuriTemplate.QueryContinuationExpander, as: QCE
+
+    test "unexisting exploded variable" do
+      assert QCE.expand(["hello"], [], [{:explode, :foo}]) == ["hello"]
+    end
+
+    test "unexisting truncated variable" do
+      assert QCE.expand(["world"], [], [{:prefix, :bar, 1488}]) == ["world"]
+    end
+
+    test "empty variable" do
+      assert QCE.expand(["heh mda"], [foo: []], [:foo]) == ["heh mda"]
+    end
+  end
 end

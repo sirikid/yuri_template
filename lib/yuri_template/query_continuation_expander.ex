@@ -4,8 +4,6 @@ defmodule YuriTemplate.QueryContinuationExpander do
   @impl true
   def expand(acc, _substitutes, []), do: acc
 
-  # FIXME: vars unused
-  # TODO: add test case
   def expand(acc, substitutes, [{:explode, var} | vars]) do
     case Access.fetch(substitutes, var) do
       :error ->
@@ -26,8 +24,6 @@ defmodule YuriTemplate.QueryContinuationExpander do
     |> expand(substitutes, vars)
   end
 
-  # FIXME: vars unused
-  # TODO: add test case
   def expand(acc, substitutes, [{:prefix, var, length} | vars]) do
     case Access.fetch(substitutes, var) do
       :error ->
