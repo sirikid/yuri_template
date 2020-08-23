@@ -14,4 +14,24 @@ defmodule YuriTemplate.FragmentExpanderTest do
       {"{#keys}", "#semi,;,dot,.,comma,,"},
       {"{#keys*}", "#semi=;,dot=.,comma=,"}
     ]
+
+  describe "expand/3" do
+    alias YuriTemplate.FragmentExpander, as: FE
+
+    test "unexisting exploded variable" do
+      assert FE.expand(["an accumulator"], [], [{:explode, :foo}]) == ["an accumulator"]
+    end
+
+    test "empty exploded variable" do
+      assert FE.expand(["an accumulator"], [foo: []], [{:explode, :foo}]) == ["an accumulator"]
+    end
+
+    test "unexisting truncated variable" do
+      assert FE.expand(["an accumulator"], [], [{:prefix, :foo, 1337}]) == ["an accumulator"]
+    end
+
+    test "empty variable" do
+      assert FE.expand(["an accumulator"], [foo: []], [:foo]) == ["#", "an accumulator"]
+    end
+  end
 end
