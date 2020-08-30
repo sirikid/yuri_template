@@ -62,5 +62,5 @@ defmodule YuriTemplate.QueryContinuationExpander do
   end
 
   @spec encode(String.t()) :: String.t()
-  def encode(s), do: URI.encode(s, &URI.char_unreserved?/1)
+  defp encode(s), do: URI.encode(s, &URI.char_unreserved?/1)
 end
