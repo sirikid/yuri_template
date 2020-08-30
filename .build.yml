@@ -5,7 +5,7 @@ packages:
 sources:
   - https://git.sr.ht/~sokolov/yuri_template
 tasks:
-  - setup: |
+  - local-hex-and-rebar: |
       mix local.rebar --force
       mix local.hex --force
   - build: |
