@@ -1,6 +1,7 @@
 defmodule YuriTemplate.ParameterExpanderTest do
   use ExpanderTest,
     cases: [
+      # Cases from RFC
       {"{;who}", ";who=fred"},
       {"{;half}", ";half=50%25"},
       {"{;empty}", ";empty"},
@@ -13,6 +14,9 @@ defmodule YuriTemplate.ParameterExpanderTest do
       {"{;list}", ";list=red,green,blue"},
       {"{;list*}", ";list=red;list=green;list=blue"},
       {"{;keys}", ";keys=semi,%3B,dot,.,comma,%2C"},
-      {"{;keys*}", ";semi=%3B;dot=.;comma=%2C"}
+      {"{;keys*}", ";semi=%3B;dot=.;comma=%2C"},
+      # Additional cases for 100% coverage
+      {"foo{;undef:10}", "foo"},
+      {"bar{;undef*}", "bar"}
     ]
 end
