@@ -18,43 +18,41 @@ defmodule YuriTemplate.FragmentExpanderTest do
   alias YuriTemplate, as: YT
 
   describe "expand/3" do
-    alias YuriTemplate.FragmentExpander, as: FE
-
-    test "unexisting exploded variable" do
-      assert FE.expand(["an accumulator"], [], [{:explode, :foo}]) == ["an accumulator"]
+    test "explosion of non existing variable" do
+      assert YT.expand!("a{#b*}c", []) == "ac"
     end
 
-    test "empty exploded variable" do
-      assert FE.expand(["an accumulator"], [foo: []], [{:explode, :foo}]) == ["an accumulator"]
+    test "explosion of empty list" do
+      assert YT.expand!("a{#b*}c", b: []) == "ac"
     end
 
-    test "unexisting truncated variable" do
-      assert FE.expand(["an accumulator"], [], [{:prefix, :foo, 1337}]) == ["an accumulator"]
+    test "truncation of non existing variable" do
+      assert YT.expand!("a{#b:228}c", []) == "ac"
     end
 
     test "empty variable" do
-      assert FE.expand(["an accumulator"], [foo: []], [:foo]) == ["#", "an accumulator"]
+      assert YT.expand!("a{#b}c", b: "a#c")
     end
   end
 
   describe "continue_expand/3" do
-    test "explosion of second or later non existing variable" do
+    test "explosion of non existing variable" do
       assert YT.expand!("{#a,b*}", a: "xxx") == "#xxx"
     end
 
-    test "explosion of second or later kvlist variable" do
+    test "explosion of kvlist" do
       assert YT.expand!("{#a,b*}", a: "xxx", b: [{"yyy", "zzz"}]) == "#xxx,yyy=zzz"
     end
 
-    test "explosion of second or later list variable" do
+    test "explosion of list" do
       assert YT.expand!("{#a,b*}", a: "xxx", b: ~w(yyy zzz)) == "#xxx,yyy,zzz"
     end
 
-    test "truncation of second or later non existing variable" do
+    test "truncation of non existing variable" do
       assert YT.expand!("{#a,b:5}", a: "xxx") == "#xxx"
     end
 
-    test "truncation of second or later variable" do
+    test "truncation" do
       assert YT.expand!("{#a,b:5}", a: "xxx", b: "lorem ipsum") == "#xxx,lorem"
     end
   end
