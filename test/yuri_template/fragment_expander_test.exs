@@ -15,6 +15,8 @@ defmodule YuriTemplate.FragmentExpanderTest do
       {"{#keys*}", "#semi=;,dot=.,comma=,"}
     ]
 
+  alias YuriTemplate, as: YT
+
   describe "expand/3" do
     alias YuriTemplate.FragmentExpander, as: FE
 
@@ -32,6 +34,28 @@ defmodule YuriTemplate.FragmentExpanderTest do
 
     test "empty variable" do
       assert FE.expand(["an accumulator"], [foo: []], [:foo]) == ["#", "an accumulator"]
+    end
+  end
+
+  describe "continue_expand/3" do
+    test "explosion of second or later non existing variable" do
+      assert YT.expand!("{#a,b*}", a: "xxx") == "#xxx"
+    end
+
+    test "explosion of second or later kvlist variable" do
+      assert YT.expand!("{#a,b*}", a: "xxx", b: [{"yyy", "zzz"}]) == "#xxx,yyy=zzz"
+    end
+
+    test "explosion of second or later list variable" do
+      assert YT.expand!("{#a,b*}", a: "xxx", b: ~w(yyy zzz)) == "#xxx,yyy,zzz"
+    end
+
+    test "truncation of second or later non existing variable" do
+      assert YT.expand!("{#a,b:5}", a: "xxx") == "#xxx"
+    end
+
+    test "truncation of second or later variable" do
+      assert YT.expand!("{#a,b:5}", a: "xxx", b: "lorem ipsum") == "#xxx,lorem"
     end
   end
 end
