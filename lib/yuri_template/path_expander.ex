@@ -1,4 +1,6 @@
 defmodule YuriTemplate.PathExpander do
+  @moduledoc false
+
   @behaviour YuriTemplate.Expander
 
   @impl true

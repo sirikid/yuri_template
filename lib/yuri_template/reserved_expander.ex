@@ -1,4 +1,6 @@
 defmodule YuriTemplate.ReservedExpander do
+  @moduledoc false
+
   @behaviour YuriTemplate.Expander
 
   @impl true

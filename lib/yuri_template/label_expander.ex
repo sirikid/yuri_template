@@ -1,4 +1,6 @@
 defmodule YuriTemplate.LabelExpander do
+  @moduledoc false
+
   @behaviour YuriTemplate.Expander
 
   @impl true

@@ -1,4 +1,6 @@
 defmodule YuriTemplate.SimpleExpander do
+  @moduledoc false
+
   @behaviour YuriTemplate.Expander
 
   @impl true

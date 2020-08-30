@@ -1,4 +1,6 @@
 defmodule YuriTemplate.QueryExpander do
+  @moduledoc false
+
   @behaviour YuriTemplate.Expander
 
   @impl true

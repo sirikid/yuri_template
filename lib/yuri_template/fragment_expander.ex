@@ -1,4 +1,6 @@
 defmodule YuriTemplate.FragmentExpander do
+  @moduledoc false
+
   @behaviour YuriTemplate.Expander
 
   @impl true

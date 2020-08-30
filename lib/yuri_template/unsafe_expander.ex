@@ -1,8 +1,5 @@
 defmodule YuriTemplate.UnsafeExpander do
-  @moduledoc """
-  This expander does not encode values in any way, thus it can form an
-  incorrect URI.
-  """
+  @moduledoc false
 
   @behaviour YuriTemplate.Expander
 

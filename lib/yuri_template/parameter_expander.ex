@@ -1,4 +1,6 @@
 defmodule YuriTemplate.ParameterExpander do
+  @moduledoc false
+
   @behaviour YuriTemplate.Expander
 
   @impl true
