@@ -85,12 +85,12 @@ defmodule YuriTemplate.SimpleExpander do
           [{k, v} | kvs] ->
             Enum.reduce(
               kvs,
-              [v, ",", k, "," | acc],
-              fn {k, v}, acc -> [v, k | acc] end
+              [encode(v), ",", k | acc],
+              fn {k, v}, acc -> [encode(v), ",", k, "," | acc] end
             )
 
           [v | vs] ->
-            Enum.reduce(vs, [v | acc], &[&1 | &2])
+            Enum.reduce(vs, [v | acc], &[&1, "," | &2])
 
           [] ->
             acc

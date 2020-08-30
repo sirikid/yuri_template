@@ -1,6 +1,7 @@
 defmodule YuriTemplate.SimpleExpanderTest do
   use ExpanderTest,
     cases: [
+      # Cases from RFC
       {"{var}", "value"},
       {"{hello}", "Hello%20World%21"},
       {"{half}", "50%25"},
@@ -16,6 +17,14 @@ defmodule YuriTemplate.SimpleExpanderTest do
       {"{list}", "red,green,blue"},
       {"{list*}", "red,green,blue"},
       {"{keys}", "semi,%3B,dot,.,comma,%2C"},
-      {"{keys*}", "semi=%3B,dot=.,comma=%2C"}
+      {"{keys*}", "semi=%3B,dot=.,comma=%2C"},
+      # Additional cases for 100% coverage
+      {"foo{undef*}", "foo"},
+      {"bar{empty_keys*}", "bar"},
+      {"baz{undef:10}", "baz"},
+      {"qux{empty_keys}", "qux"},
+      {"{var,keys}", "value,semi,%3B,dot,.,comma,%2C"},
+      {"{var,list}", "value,red,green,blue"},
+      # {"{var,empty_keys}", FIXME: Should this be "value," or "value"?}
     ]
 end
