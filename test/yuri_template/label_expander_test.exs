@@ -1,6 +1,7 @@
 defmodule YuriTemplateg.LabelExpanderTest do
   use ExpanderTest,
     cases: [
+      # Cases from RFC
       {"{.who}", ".fred"},
       {"{.who,who}", ".fred.fred"},
       {"{.half,who}", ".50%25.fred"},
@@ -14,6 +15,9 @@ defmodule YuriTemplateg.LabelExpanderTest do
       {"X{.keys}", "X.semi,%3B,dot,.,comma,%2C"},
       {"X{.keys*}", "X.semi=%3B.dot=..comma=%2C"},
       {"X{.empty_keys}", "X"},
-      {"X{.empty_keys*}", "X"}
+      {"X{.empty_keys*}", "X"},
+      # Additional cases for 100% coverage
+      {"X{.undef:10}", "X"},
+      {"X{.undef*}", "X"}
     ]
 end
