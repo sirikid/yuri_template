@@ -12,16 +12,21 @@ defmodule YuriTemplate.ReservedExpander do
       {:ok, value} ->
         case value do
           [{k, v} | kvs] ->
-            expand_kvlist(acc, var, ?=, k, v, kvs)
+            Enum.reduce(
+              kvs,
+              [v, "=", k | acc],
+              fn {k, v}, acc -> [v, "=", k, "," | acc] end
+            )
 
           [v | vs] ->
-            expand_list(acc, var, v, vs)
+            Enum.reduce(
+              vs,
+              [v | acc],
+              &[&1, "," | &2]
+            )
 
           [] ->
             acc
-
-          v ->
-            expand_value(acc, var, v)
         end
         |> continue_expand(substitutes, vars)
     end
@@ -32,20 +37,8 @@ defmodule YuriTemplate.ReservedExpander do
       :error ->
         expand(acc, substitutes, vars)
 
-      {:ok, value} ->
-        case value do
-          [{k, v} | kvs] ->
-            expand_kvlist(acc, var, ?,, k, v, kvs)
-
-          [v | vs] ->
-            expand_list(acc, var, v, vs)
-
-          [] ->
-            acc
-
-          v ->
-            expand_value(acc, var, v, length)
-        end
+      {:ok, v} when is_binary(v) ->
+        [String.slice(encode(v), 0, length) | acc]
         |> continue_expand(substitutes, vars)
     end
   end
@@ -58,16 +51,20 @@ defmodule YuriTemplate.ReservedExpander do
       {:ok, value} ->
         case value do
           [{k, v} | kvs] ->
-            expand_kvlist(acc, var, ?,, k, v, kvs)
+            Enum.reduce(
+              kvs,
+              [v, ",", k | acc],
+              fn {k, v}, acc -> [v, ",", k, "," | acc] end
+            )
 
           [v | vs] ->
-            expand_list(acc, var, v, vs)
+            Enum.reduce(vs, [v | acc], &[&1, "," | &2])
 
           [] ->
             acc
 
           v ->
-            expand_value(acc, var, v)
+            [encode(v) | acc]
         end
         |> continue_expand(substitutes, vars)
     end
@@ -81,46 +78,20 @@ defmodule YuriTemplate.ReservedExpander do
       :error ->
         acc
 
-      {:ok, [{k, v} | kvs]} ->
-        expand_kvlist(["," | acc], var, ?,, k, v, kvs)
+      {:ok, [{_k, _v} | _] = kvs} ->
+        Enum.reduce(
+          kvs,
+          acc,
+          fn {k, v}, acc -> [v, ",", k, "," | acc] end
+        )
 
-      {:ok, [v | vs]} ->
-        expand_list(["," | acc], var, v, vs)
-
-      {:ok, []} ->
-        ["," | acc]
+      {:ok, vs} when is_list(vs) ->
+        Enum.reduce(vs, acc, &[&1, "," | &2])
 
       {:ok, v} ->
-        expand_value(["," | acc], var, v)
-    end
-    |> continue_expand(substitutes, vars)
-  end
-
-  @spec expand_kvlist(iodata, atom, ?, | ?=, String.t(), String.t(), [{String.t(), String.t()}]) ::
-          iodata
-  defp expand_kvlist(acc, _var, kvdel, k, v, kvs) do
-    for {k, v} <- kvs, reduce: [v, kvdel, k | acc] do
-      acc ->
-        [v, kvdel, k, "," | acc]
-    end
-  end
-
-  @spec expand_list(iodata, atom, String.t(), [String.t()]) :: iodata
-  defp expand_list(acc, _var, v, vs) do
-    for v <- vs, reduce: [v | acc] do
-      acc ->
         [encode(v), "," | acc]
     end
-  end
-
-  @spec expand_value(iodata, atom, String.t()) :: iodata
-  defp expand_value(acc, _var, v) do
-    [encode(v) | acc]
-  end
-
-  @spec expand_value(iodata, atom, String.t(), integer) :: iodata
-  def expand_value(acc, _var, v, length) do
-    [encode(v) |> String.slice(0, length) | acc]
+    |> continue_expand(substitutes, vars)
   end
 
   @spec encode(String.t()) :: String.t()
