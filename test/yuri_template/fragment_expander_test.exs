@@ -31,7 +31,7 @@ defmodule YuriTemplate.FragmentExpanderTest do
     end
 
     test "empty variable" do
-      assert YT.expand!("a{#b}c", b: "a#c")
+      assert YT.expand!("a{#b}c", b: []) == "a#c"
     end
   end
 
@@ -54,6 +54,18 @@ defmodule YuriTemplate.FragmentExpanderTest do
 
     test "truncation" do
       assert YT.expand!("{#a,b:5}", a: "xxx", b: "lorem ipsum") == "#xxx,lorem"
+    end
+
+    test "non existing variable" do
+      assert YT.expand!("a{#b,c}", b: "xxx") == "a#xxx"
+    end
+
+    test "kvlist" do
+      assert YT.expand!("a{#b,c}", b: "xxx", c: [{"yyy", "zzz"}]) == "a#xxx,yyy,zzz"
+    end
+
+    test "list" do
+      assert YT.expand!("a{#b,c}", b: "xxx", c: ~w(yyy zzz)) == "a#xxx,yyy,zzz"
     end
   end
 end
