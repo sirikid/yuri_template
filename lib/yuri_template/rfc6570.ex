@@ -15,15 +15,17 @@ defmodule YuriTemplate.RFC6570 do
 
   @spec parse(String.t()) :: {:ok, t} | {:error, term}
   def parse(str) do
+    alias YuriTemplate.ParseError
+
     case parse1(str) do
-      {:ok, template, "", _, _, _} ->
-        {:ok, template}
+      {:ok, acc, "", _context, _position, _offset} ->
+        {:ok, acc}
 
-      {:ok, _template, _leftover, _, _, position} ->
-        {:error, {:unexpected_character, position}}
+      {:ok, _acc, rest, context, position, offset} ->
+        {:error, ParseError.new("expected end of string", rest, context, position, offset)}
 
-      {:error, reason} ->
-        {:error, reason}
+      {:error, reason, rest, context, position, offset} ->
+        {:error, ParseError.new(inspect(reason), rest, context, position, offset)}
     end
   end
 
