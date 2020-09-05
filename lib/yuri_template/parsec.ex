@@ -1,4 +1,6 @@
 defmodule YuriTemplate.Parsec do
+  @moduledoc false
+
   import NimbleParsec
 
   def literal(prev \\ empty()),
