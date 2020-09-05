@@ -33,8 +33,8 @@ defmodule YuriTemplate.RFC6570 do
       {:ok, _acc, rest, context, position, offset} ->
         {:error, ParseError.new("expected end of string", rest, context, position, offset)}
 
-      {:error, reason, rest, context, position, offset} ->
-        {:error, ParseError.new(inspect(reason), rest, context, position, offset)}
+      # {:error, reason, rest, context, position, offset} ->
+      #   {:error, ParseError.new(inspect(reason), rest, context, position, offset)}
     end
   end
 
@@ -85,7 +85,7 @@ defmodule YuriTemplate.RFC6570 do
       ?\; -> YT.ParameterExpander
       ?\? -> YT.QueryExpander
       ?\& -> YT.QueryContinuationExpander
-      _op -> YT.SimpleExpander
+      # _op -> YT.SimpleExpander
     end
     |> apply(:expand, [acc, substitutes, varlist])
   end

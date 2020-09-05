@@ -42,8 +42,8 @@ defmodule YuriTemplate do
       {:error, %{__exception__: true} = error} ->
         raise error
 
-      {:error, reason} ->
-        raise RuntimeError, message: inspect(reason)
+      # {:error, reason} ->
+      #   raise RuntimeError, message: inspect(reason)
     end
   end
 
