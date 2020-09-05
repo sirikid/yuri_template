@@ -1,4 +1,12 @@
 defmodule YuriTemplate.RFC6570 do
+  @moduledoc """
+  This module contains RFC6570-specific functions.
+  """
+
+  @typedoc """
+  Internal template representation. Subject to change at any time
+  without prior notice.
+  """
   @opaque t :: [String.t() | varlist]
 
   @typep varlist :: [op | varspec]
@@ -8,11 +16,12 @@ defmodule YuriTemplate.RFC6570 do
 
   @typep varspec :: atom | {:explode, atom} | {:prefix, atom, 1..10_000}
 
-  # Expander
-
   require NimbleParsec
   NimbleParsec.defparsec(:parse1, YuriTemplate.Parsec.uri_template())
 
+  @doc """
+  Parses the given string to the `t:t/0`.
+  """
   @spec parse(String.t()) :: {:ok, t} | {:error, term}
   def parse(str) do
     alias YuriTemplate.ParseError
@@ -29,27 +38,37 @@ defmodule YuriTemplate.RFC6570 do
     end
   end
 
-  @spec expand(iodata, t, Access.t()) :: iodata
-  def expand(acc \\ [], template, substitutes) do
+  @doc """
+  Expands the template using given substitutes into an `t:iodata/0`.
+  """
+  @spec expand(t, Access.t()) :: iodata
+  def expand(template, substitutes) do
+    []
+    |> expand_acc(template, substitutes)
+    |> Enum.reverse()
+  end
+
+  @spec expand_acc([iodata], t, Access.t()) :: [iodata]
+  defp expand_acc(acc, template, substitutes) do
     case template do
       nil ->
-        Enum.reverse(acc)
+        acc
 
       [] ->
-        Enum.reverse(acc)
+        acc
 
       [literal | template] when is_binary(literal) ->
-        expand([literal | acc], template, substitutes)
+        expand_acc([literal | acc], template, substitutes)
 
       [[op | varlist] | template] when is_op(op) and is_list(varlist) ->
         acc
         |> expand_varlist(op, varlist, substitutes)
-        |> expand(template, substitutes)
+        |> expand_acc(template, substitutes)
 
       [varlist | template] when is_list(varlist) ->
         acc
         |> expand_varlist(nil, varlist, substitutes)
-        |> expand(template, substitutes)
+        |> expand_acc(template, substitutes)
     end
   end
 
