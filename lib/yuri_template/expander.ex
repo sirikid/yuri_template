@@ -14,12 +14,12 @@ defmodule YuriTemplate.Expander do
 
   ## Parameters
 
-  - accumulator: `t:iodata/0`, new fragments must be consed to it in
-    reverse order
+  - `accumulator`: new fragments must be consed to it in reverse
+    order.
 
-  - substitutes: `t:Access.t/0`, mapping names to values
+  - `substitutes`: mapping names to values.
 
-  - variables: list of names to get from `substitutes`
+  - `variables`: list of names to get from `substitutes`.
   """
   @callback expand(accumulator :: iodata, substitutes :: Access.t(), variables :: spec) :: iodata
 end
