@@ -19,7 +19,7 @@ defmodule YuriTemplate.PathExpander do
         )
 
       {:ok, vs} when is_list(vs) ->
-        Enum.reduce(vs, acc, &[&1, "/" | &2])
+        Enum.reduce(vs, acc, &[encode(&1), "/" | &2])
     end
     |> expand(substitutes, vars)
   end
@@ -49,9 +49,12 @@ defmodule YuriTemplate.PathExpander do
           fn {k, v}, acc -> [encode(v), ",", k, "," | acc] end
         )
 
-      {:ok, [v1 | vs]} ->
-        # FIXME: add test case for missing encode/1
-        Enum.reduce(vs, [v1, "/" | acc], &[&1, "," | &2])
+      {:ok, [v | vs]} ->
+        Enum.reduce(
+          vs,
+          [encode(v), "/" | acc],
+          &[encode(&1), "," | &2]
+        )
 
       {:ok, []} ->
         acc
