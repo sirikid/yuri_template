@@ -31,8 +31,8 @@ defmodule YuriTemplate.QueryContinuationExpander do
         acc
 
       {:ok, v} when is_binary(v) ->
-        # FIXME: add test for missing encode/1
-        [String.slice(v, 0, length), "=", to_string(var), "&" | acc]
+        v = String.slice(v, 0, length)
+        [encode(v), "=", to_string(var), "&" | acc]
     end
     |> expand(substitutes, vars)
   end
