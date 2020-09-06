@@ -25,15 +25,15 @@ defmodule YuriTemplate.LabelExpander do
       {:ok, []} ->
         acc
 
-      {:ok, [{k, v} | kvs]} ->
-        for {k, v} <- kvs, reduce: [encode(v), "=", k, "." | acc] do
-          acc -> [encode(v), "=", k, "." | acc]
-        end
+      {:ok, [{_k, _v} | _] = kvs} ->
+        Enum.reduce(
+          kvs,
+          acc,
+          fn {k, v}, acc -> [encode(v), "=", k, "." | acc] end
+        )
 
-      {:ok, [v | vs]} ->
-        for v <- vs, reduce: [encode(v), "." | acc] do
-          acc -> [encode(v), "." | acc]
-        end
+      {:ok, vs} when is_list(vs) ->
+        Enum.reduce(vs, acc, &[encode(&1), "." | &2])
     end
     |> expand(substitutes, vars)
   end
@@ -46,14 +46,18 @@ defmodule YuriTemplate.LabelExpander do
       {:ok, value} ->
         case value do
           [{k, v} | kvs] ->
-            for {k, v} <- kvs, reduce: [encode(v), ",", k, "." | acc] do
-              acc -> [encode(v), ",", k, "," | acc]
-            end
+            Enum.reduce(
+              kvs,
+              [encode(v), ",", k, "." | acc],
+              fn {k, v}, acc -> [encode(v), ",", k, "," | acc] end
+            )
 
           [v | vs] ->
-            for v <- vs, reduce: [encode(v), "." | acc] do
-              acc -> [encode(v), "," | acc]
-            end
+            Enum.reduce(
+              vs,
+              [encode(v), "." | acc],
+              &[encode(&1), "," | &2]
+            )
 
           [] ->
             acc

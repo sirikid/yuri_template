@@ -25,16 +25,20 @@ defmodule YuriTemplate.QueryExpander do
       {:ok, value} ->
         case value do
           [{k1, v1} | kvs] ->
-            for {k, v} <- kvs, reduce: [encode(v1), "=", k1, "?" | acc] do
-              acc -> [encode(v), "=", k, "&" | acc]
-            end
+            Enum.reduce(
+              kvs,
+              [encode(v1), "=", k1, "?" | acc],
+              fn {k, v}, acc -> [encode(v), "=", k, "&" | acc] end
+            )
 
           [v1 | vs] ->
             k = to_string(var)
 
-            for v <- vs, reduce: [encode(v1), "=", k, "?" | acc] do
-              acc -> [encode(v), "=", k, "&" | acc]
-            end
+            Enum.reduce(
+              vs,
+              [encode(v1), "=", k, "?" | acc],
+              &[encode(&1), "=", k, "&" | &2]
+            )
         end
         |> continue_expand(substitutes, vars)
     end
@@ -46,14 +50,20 @@ defmodule YuriTemplate.QueryExpander do
         expand(acc, substitutes, vars)
 
       {:ok, [{k1, v1} | kvs]} ->
-        for {k, v} <- kvs, reduce: [encode(v1), ",", k1, "=", to_string(var), "?" | acc] do
-          acc -> [encode(v), ",", k, "," | acc]
-        end
+        # FIXME: add test case for missing continue_expand/3 call
+        Enum.reduce(
+          kvs,
+          [encode(v1), ",", k1, "=", to_string(var), "?" | acc],
+          fn {k, v}, acc -> [encode(v), ",", k, "," | acc] end
+        )
 
-      {:ok, [v1 | vs]} ->
-        for v <- vs, reduce: [encode(v1), "=", to_string(var), "?" | acc] do
-          acc -> [encode(v), "," | acc]
-        end
+      {:ok, [v | vs]} ->
+        # FIXME: add test case for missing continue_expand/3 call
+        Enum.reduce(
+          vs,
+          [encode(v), "=", to_string(var), "?" | acc],
+          &[encode(&1), "," | &2]
+        )
 
       {:ok, []} ->
         continue_expand(acc, substitutes, vars)
