@@ -49,27 +49,28 @@ defmodule YuriTemplate.QueryExpander do
       :error ->
         expand(acc, substitutes, vars)
 
-      {:ok, [{k1, v1} | kvs]} ->
-        # FIXME: add test case for missing continue_expand/3 call
-        Enum.reduce(
-          kvs,
-          [encode(v1), ",", k1, "=", to_string(var), "?" | acc],
-          fn {k, v}, acc -> [encode(v), ",", k, "," | acc] end
-        )
+      {:ok, value} ->
+        case value do
+          [{k1, v1} | kvs] ->
+            Enum.reduce(
+              kvs,
+              [encode(v1), ",", k1, "=", to_string(var), "?" | acc],
+              fn {k, v}, acc -> [encode(v), ",", k, "," | acc] end
+            )
 
-      {:ok, [v | vs]} ->
-        # FIXME: add test case for missing continue_expand/3 call
-        Enum.reduce(
-          vs,
-          [encode(v), "=", to_string(var), "?" | acc],
-          &[encode(&1), "," | &2]
-        )
+          [v | vs] ->
+            Enum.reduce(
+              vs,
+              [encode(v), "=", to_string(var), "?" | acc],
+              &[encode(&1), "," | &2]
+            )
 
-      {:ok, []} ->
-        continue_expand(acc, substitutes, vars)
+          [] ->
+            acc
 
-      {:ok, v} ->
-        [encode(v), "=", to_string(var), "?" | acc]
+          v ->
+            [encode(v), "=", to_string(var), "?" | acc]
+        end
         |> continue_expand(substitutes, vars)
     end
   end

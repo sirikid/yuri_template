@@ -16,6 +16,9 @@ defmodule YuriTemplate.QueryExpanderTest do
       {"foo{?undef:13}", "foo"},
       {"foo{?undef*}", "foo"},
       {"foo{?undef}", "foo"},
-      {"foo{?empty_keys}", "foo"}
+      {"foo{?empty_keys}", "foo"},
+      # Missing continue_expand/3
+      {"{?keys,who}", "?keys=semi,%3B,dot,.,comma,%2C&who=fred"},
+      {"{?list,half}", "?list=red,green,blue&half=50%25"}
     ]
 end
