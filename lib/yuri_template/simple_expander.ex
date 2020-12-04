@@ -16,15 +16,15 @@ defmodule YuriTemplate.SimpleExpander do
           [{k1, v1} | kvs] ->
             Enum.reduce(
               kvs,
-              [encode(v1), "=", k1 | acc],
-              fn {k, v}, acc -> [encode(v), "=", k, "," | acc] end
+              [acc, k1, "=", encode(v1)],
+              fn {k, v}, acc -> [acc, ",", k, "=", encode(v)] end
             )
 
           [v | vs] ->
             Enum.reduce(
               vs,
-              [encode(v) | acc],
-              fn v, acc -> [encode(v), "," | acc] end
+              [acc, encode(v)],
+              fn v, acc -> [acc, ",", encode(v)] end
             )
 
           [] ->
@@ -40,7 +40,7 @@ defmodule YuriTemplate.SimpleExpander do
         expand(acc, substitutes, vars)
 
       {:ok, v} when is_binary(v) ->
-        [encode(String.slice(v, 0, length)) | acc]
+        [acc, encode(String.slice(v, 0, length))]
         |> continue_expand(substitutes, vars)
     end
   end
@@ -55,18 +55,18 @@ defmodule YuriTemplate.SimpleExpander do
           [{k, v} | kvs] ->
             Enum.reduce(
               kvs,
-              [encode(v), ",", k | acc],
-              fn {k, v}, acc -> [encode(v), ",", k, "," | acc] end
+              [acc, k, ",", encode(v)],
+              fn {k, v}, acc -> [acc, ",", k, ",", encode(v)] end
             )
 
           [v | vs] ->
-            Enum.reduce(vs, [v | acc], &[&1, "," | &2])
+            Enum.reduce(vs, [acc, v], &[&2, ",", &1])
 
           [] ->
             acc
 
           v ->
-            [encode(v) | acc]
+            [acc, encode(v)]
         end
         |> continue_expand(substitutes, vars)
     end
@@ -81,24 +81,24 @@ defmodule YuriTemplate.SimpleExpander do
         acc
 
       {:ok, value} ->
-        acc = ["," | acc]
+        acc = [acc, ","]
 
         case value do
           [{k, v} | kvs] ->
             Enum.reduce(
               kvs,
-              [encode(v), ",", k | acc],
-              fn {k, v}, acc -> [encode(v), ",", k, "," | acc] end
+              [acc, k, ",", encode(v)],
+              fn {k, v}, acc -> [acc, ",", k, ",", encode(v)] end
             )
 
           [v | vs] ->
-            Enum.reduce(vs, [v | acc], &[&1, "," | &2])
+            Enum.reduce(vs, [acc, v], &[&2, ",", &1])
 
           [] ->
             acc
 
           v ->
-            [encode(v) | acc]
+            [acc, encode(v)]
         end
     end
     |> continue_expand(substitutes, vars)

@@ -14,8 +14,7 @@ defmodule YuriTemplate.Expander do
 
   ## Parameters
 
-  - `accumulator`: new fragments must be consed to it in reverse
-    order.
+  - `accumulator`: iodata, possibly created by previous expanders.
 
   - `substitutes`: mapping names to values.
 

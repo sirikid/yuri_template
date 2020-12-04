@@ -12,7 +12,9 @@ defmodule YuriTemplate.QueryExpander do
         expand(acc, substitutes, vars)
 
       {:ok, v} when is_binary(v) ->
-        [String.slice(encode(v), 0, length), "=", to_string(var), "?" | acc]
+        v = String.slice(v, 0, length)
+
+        [acc, "?", to_string(var), "=", encode(v)]
         |> continue_expand(substitutes, vars)
     end
   end
@@ -27,8 +29,8 @@ defmodule YuriTemplate.QueryExpander do
           [{k1, v1} | kvs] ->
             Enum.reduce(
               kvs,
-              [encode(v1), "=", k1, "?" | acc],
-              fn {k, v}, acc -> [encode(v), "=", k, "&" | acc] end
+              [acc, "?", k1, "=", encode(v1)],
+              fn {k, v}, acc -> [acc, "&", k, "=", encode(v)] end
             )
 
           [v1 | vs] ->
@@ -36,8 +38,8 @@ defmodule YuriTemplate.QueryExpander do
 
             Enum.reduce(
               vs,
-              [encode(v1), "=", k, "?" | acc],
-              &[encode(&1), "=", k, "&" | &2]
+              [acc, "?", k, "=", encode(v1)],
+              &[&2, "&", k, "=", encode(&1)]
             )
         end
         |> continue_expand(substitutes, vars)
@@ -54,22 +56,22 @@ defmodule YuriTemplate.QueryExpander do
           [{k1, v1} | kvs] ->
             Enum.reduce(
               kvs,
-              [encode(v1), ",", k1, "=", to_string(var), "?" | acc],
-              fn {k, v}, acc -> [encode(v), ",", k, "," | acc] end
+              [acc, "?", to_string(var), "=", k1, ",", encode(v1)],
+              fn {k, v}, acc -> [acc, ",", k, ",", encode(v)] end
             )
 
           [v | vs] ->
             Enum.reduce(
               vs,
-              [encode(v), "=", to_string(var), "?" | acc],
-              &[encode(&1), "," | &2]
+              [acc, "?", to_string(var), "=", encode(v)],
+              &[&2, ",", encode(&1)]
             )
 
           [] ->
             acc
 
           v ->
-            [encode(v), "=", to_string(var), "?" | acc]
+            [acc, "?", to_string(var), "=", encode(v)]
         end
         |> continue_expand(substitutes, vars)
     end

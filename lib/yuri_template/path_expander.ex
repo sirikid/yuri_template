@@ -15,11 +15,11 @@ defmodule YuriTemplate.PathExpander do
         Enum.reduce(
           kvs,
           acc,
-          fn {k, v}, acc -> [encode(v), "=", k, "/" | acc] end
+          fn {k, v}, acc -> [acc, "/", k, "=", encode(v)] end
         )
 
       {:ok, vs} when is_list(vs) ->
-        Enum.reduce(vs, acc, &[encode(&1), "/" | &2])
+        Enum.reduce(vs, acc, &[&2, "/", encode(&1)])
     end
     |> expand(substitutes, vars)
   end
@@ -31,8 +31,7 @@ defmodule YuriTemplate.PathExpander do
 
       {:ok, v} when is_binary(v) ->
         v = String.slice(v, 0, length)
-
-        [encode(v), "/" | acc]
+        [acc, "/", encode(v)]
     end
     |> expand(substitutes, vars)
   end
@@ -45,22 +44,22 @@ defmodule YuriTemplate.PathExpander do
       {:ok, [{k1, v1} | kvs]} ->
         Enum.reduce(
           kvs,
-          [encode(v1), ",", k1, "/" | acc],
-          fn {k, v}, acc -> [encode(v), ",", k, "," | acc] end
+          [acc, "/", k1, ",", encode(v1)],
+          fn {k, v}, acc -> [acc, ",", k, ",", encode(v)] end
         )
 
       {:ok, [v | vs]} ->
         Enum.reduce(
           vs,
-          [encode(v), "/" | acc],
-          &[encode(&1), "," | &2]
+          [acc, "/", encode(v)],
+          &[&2, ",", encode(&1)]
         )
 
       {:ok, []} ->
         acc
 
       {:ok, v} when is_binary(v) ->
-        [encode(v), "/" | acc]
+        [acc, "/", encode(v)]
     end
     |> expand(substitutes, vars)
   end

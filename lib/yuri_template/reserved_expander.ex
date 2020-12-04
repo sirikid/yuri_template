@@ -16,15 +16,15 @@ defmodule YuriTemplate.ReservedExpander do
           [{k, v} | kvs] ->
             Enum.reduce(
               kvs,
-              [v, "=", k | acc],
-              fn {k, v}, acc -> [v, "=", k, "," | acc] end
+              [acc, k, "=", v],
+              fn {k, v}, acc -> [acc, ",", k, "=", v] end
             )
 
           [v | vs] ->
             Enum.reduce(
               vs,
-              [v | acc],
-              &[&1, "," | &2]
+              [acc, v],
+              &[&2, ",", &1]
             )
 
           [] ->
@@ -40,7 +40,9 @@ defmodule YuriTemplate.ReservedExpander do
         expand(acc, substitutes, vars)
 
       {:ok, v} when is_binary(v) ->
-        [String.slice(encode(v), 0, length) | acc]
+        v = String.slice(v, 0, length)
+
+        [acc, encode(v)]
         |> continue_expand(substitutes, vars)
     end
   end
@@ -55,18 +57,18 @@ defmodule YuriTemplate.ReservedExpander do
           [{k, v} | kvs] ->
             Enum.reduce(
               kvs,
-              [v, ",", k | acc],
-              fn {k, v}, acc -> [v, ",", k, "," | acc] end
+              [acc, k, ",", v],
+              fn {k, v}, acc -> [acc, ",", k, ",", v] end
             )
 
           [v | vs] ->
-            Enum.reduce(vs, [v | acc], &[&1, "," | &2])
+            Enum.reduce(vs, [acc, v], &[&2, ",", &1])
 
           [] ->
             acc
 
           v ->
-            [encode(v) | acc]
+            [acc, encode(v)]
         end
         |> continue_expand(substitutes, vars)
     end
@@ -84,14 +86,14 @@ defmodule YuriTemplate.ReservedExpander do
         Enum.reduce(
           kvs,
           acc,
-          fn {k, v}, acc -> [v, ",", k, "," | acc] end
+          fn {k, v}, acc -> [acc, ",", k, ",", v] end
         )
 
       {:ok, vs} when is_list(vs) ->
-        Enum.reduce(vs, acc, &[&1, "," | &2])
+        Enum.reduce(vs, acc, &[&2, ",", &1])
 
       {:ok, v} ->
-        [encode(v), "," | acc]
+        [acc, ",", encode(v)]
     end
     |> continue_expand(substitutes, vars)
   end

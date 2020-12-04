@@ -12,7 +12,8 @@ defmodule YuriTemplate.LabelExpander do
         acc
 
       {:ok, v} when is_binary(v) ->
-        [encode(v) |> String.slice(0, length), "." | acc]
+        v = String.slice(v, 0, length)
+        [acc, ".", encode(v)]
     end
     |> expand(substitutes, vars)
   end
@@ -29,11 +30,11 @@ defmodule YuriTemplate.LabelExpander do
         Enum.reduce(
           kvs,
           acc,
-          fn {k, v}, acc -> [encode(v), "=", k, "." | acc] end
+          fn {k, v}, acc -> [acc, ".", k, "=", encode(v)] end
         )
 
       {:ok, vs} when is_list(vs) ->
-        Enum.reduce(vs, acc, &[encode(&1), "." | &2])
+        Enum.reduce(vs, acc, &[&2, ".", encode(&1)])
     end
     |> expand(substitutes, vars)
   end
@@ -48,22 +49,22 @@ defmodule YuriTemplate.LabelExpander do
           [{k, v} | kvs] ->
             Enum.reduce(
               kvs,
-              [encode(v), ",", k, "." | acc],
-              fn {k, v}, acc -> [encode(v), ",", k, "," | acc] end
+              [acc, ".", k, ",", encode(v)],
+              fn {k, v}, acc -> [acc, ",", k, ",", encode(v)] end
             )
 
           [v | vs] ->
             Enum.reduce(
               vs,
-              [encode(v), "." | acc],
-              &[encode(&1), "," | &2]
+              [acc, ".", encode(v)],
+              &[&2, ",", encode(&1)]
             )
 
           [] ->
             acc
 
           v ->
-            [encode(v), "." | acc]
+            [acc, ".", encode(v)]
         end
     end
     |> expand(substitutes, vars)

@@ -16,12 +16,12 @@ defmodule YuriTemplate.FragmentExpander do
           [{k, v} | kvs] ->
             Enum.reduce(
               kvs,
-              [encode(v), "=", k, "#" | acc],
-              fn {k, v}, acc -> [encode(v), "=", k, "," | acc] end
+              [acc, "#", k, "=", encode(v)],
+              fn {k, v}, acc -> [acc, ",", k, "=", encode(v)] end
             )
 
           [v | vs] ->
-            Enum.reduce(vs, [encode(v), "#" | acc], &[encode(&1), "," | &2])
+            Enum.reduce(vs, [acc, "#", encode(v)], &[&2, ",", encode(&1)])
 
           [] ->
             acc
@@ -36,7 +36,9 @@ defmodule YuriTemplate.FragmentExpander do
         expand(acc, substitutes, vars)
 
       {:ok, v} when is_binary(v) ->
-        [encode(String.slice(v, 0, length)), "#" | acc]
+        v = String.slice(v, 0, length)
+
+        [acc, "#", encode(v)]
         |> continue_expand(substitutes, vars)
     end
   end
@@ -47,24 +49,24 @@ defmodule YuriTemplate.FragmentExpander do
         expand(acc, substitutes, vars)
 
       {:ok, value} ->
-        acc = ["#" | acc]
+        acc = [acc, "#"]
 
         case value do
           [{k, v} | kvs] ->
             Enum.reduce(
               kvs,
-              [encode(v), ",", k | acc],
-              fn {k, v}, acc -> [encode(v), ",", k, "," | acc] end
+              [acc, k, ",", encode(v)],
+              fn {k, v}, acc -> [acc, ",", k, ",", encode(v)] end
             )
 
           [v | vs] ->
-            Enum.reduce(vs, [encode(v) | acc], &[encode(&1), "," | &2])
+            Enum.reduce(vs, [acc, encode(v)], &[&2, ",", encode(&1)])
 
           [] ->
             acc
 
           v ->
-            [encode(v) | acc]
+            [acc, encode(v)]
         end
         |> continue_expand(substitutes, vars)
     end
@@ -82,11 +84,11 @@ defmodule YuriTemplate.FragmentExpander do
         Enum.reduce(
           kvs,
           acc,
-          fn {k, v}, acc -> [encode(v), "=", k, "," | acc] end
+          fn {k, v}, acc -> [acc, ",", k, "=", encode(v)] end
         )
 
       {:ok, vs} when is_list(vs) ->
-        Enum.reduce(vs, acc, &[encode(&1), "," | &2])
+        Enum.reduce(vs, acc, &[&2, ",", encode(&1)])
     end
     |> continue_expand(substitutes, vars)
   end
@@ -97,7 +99,8 @@ defmodule YuriTemplate.FragmentExpander do
         acc
 
       {:ok, v} when is_binary(v) ->
-        [encode(String.slice(v, 0, length)), "," | acc]
+        v = String.slice(v, 0, length)
+        [acc, ",", encode(v)]
     end
     |> continue_expand(substitutes, vars)
   end
@@ -111,14 +114,14 @@ defmodule YuriTemplate.FragmentExpander do
         Enum.reduce(
           kvs,
           acc,
-          fn {k, v}, acc -> [encode(v), ",", k, "," | acc] end
+          fn {k, v}, acc -> [acc, ",", k, ",", encode(v)] end
         )
 
       {:ok, vs} when is_list(vs) ->
-        Enum.reduce(vs, acc, &[encode(&1), "," | &2])
+        Enum.reduce(vs, acc, &[&2, ",", encode(&1)])
 
       {:ok, v} when is_binary(v) ->
-        [encode(v), "," | acc]
+        [acc, ",", encode(v)]
     end
     |> continue_expand(substitutes, vars)
   end

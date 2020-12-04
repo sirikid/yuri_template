@@ -15,12 +15,12 @@ defmodule YuriTemplate.QueryContinuationExpander do
         Enum.reduce(
           kvs,
           acc,
-          fn {k, v}, acc -> [encode(v), "=", k, "&" | acc] end
+          fn {k, v}, acc -> [acc, "&", k, "=", encode(v)] end
         )
 
       {:ok, vs} when is_list(vs) ->
         k = to_string(var)
-        Enum.reduce(vs, acc, &[encode(&1), "=", k, "&" | &2])
+        Enum.reduce(vs, acc, &[&2, "&", k, "=", encode(&1)])
     end
     |> expand(substitutes, vars)
   end
@@ -32,7 +32,7 @@ defmodule YuriTemplate.QueryContinuationExpander do
 
       {:ok, v} when is_binary(v) ->
         v = String.slice(v, 0, length)
-        [encode(v), "=", to_string(var), "&" | acc]
+        [acc, "&", to_string(var), "=", encode(v)]
     end
     |> expand(substitutes, vars)
   end
@@ -45,22 +45,22 @@ defmodule YuriTemplate.QueryContinuationExpander do
       {:ok, [{k1, v1} | kvs]} ->
         Enum.reduce(
           kvs,
-          [encode(v1), ",", k1, "=", to_string(var), "&" | acc],
-          fn {k, v}, acc -> [encode(v), ",", k, "," | acc] end
+          [acc, "&", to_string(var), "=", k1, ",", encode(v1)],
+          fn {k, v}, acc -> [acc, ",", k, ",", encode(v)] end
         )
 
       {:ok, [v1 | vs]} ->
         Enum.reduce(
           vs,
-          [encode(v1), "=", to_string(var), "&" | acc],
-          &[encode(&1), "," | &2]
+          [acc, "&", to_string(var), "=", encode(v1)],
+          &[&2, ",", encode(&1)]
         )
 
       {:ok, []} ->
         acc
 
       {:ok, v} when is_binary(v) ->
-        [encode(v), "=", to_string(var), "&" | acc]
+        [acc, "&", to_string(var), "=", encode(v)]
     end
     |> expand(substitutes, vars)
   end

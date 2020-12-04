@@ -24,7 +24,7 @@ defmodule YuriTemplate.SimpleExpanderTest do
       {"baz{undef:10}", "baz"},
       {"qux{empty_keys}", "qux"},
       {"{var,keys}", "value,semi,%3B,dot,.,comma,%2C"},
-      {"{var,list}", "value,red,green,blue"},
+      {"{var,list}", "value,red,green,blue"}
       # {"{var,empty_keys}", FIXME: Should this be "value," or "value"?}
     ]
 end

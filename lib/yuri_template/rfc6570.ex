@@ -43,9 +43,7 @@ defmodule YuriTemplate.RFC6570 do
   """
   @spec expand(t, Access.t()) :: iodata
   def expand(template, substitutes) do
-    []
-    |> expand_acc(template, substitutes)
-    |> Enum.reverse()
+    expand_acc([], template, substitutes)
   end
 
   @spec expand_acc([iodata], t, Access.t()) :: [iodata]
@@ -58,7 +56,8 @@ defmodule YuriTemplate.RFC6570 do
         acc
 
       [literal | template] when is_binary(literal) ->
-        expand_acc([literal | acc], template, substitutes)
+        [acc, literal]
+        |> expand_acc(template, substitutes)
 
       [[op | varlist] | template] when is_op(op) and is_list(varlist) ->
         acc
@@ -85,7 +84,6 @@ defmodule YuriTemplate.RFC6570 do
       ?\; -> YT.ParameterExpander
       ?\? -> YT.QueryExpander
       ?\& -> YT.QueryContinuationExpander
-      # _op -> YT.SimpleExpander
     end
     |> apply(:expand, [acc, substitutes, varlist])
   end

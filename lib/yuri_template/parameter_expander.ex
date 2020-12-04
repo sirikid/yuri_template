@@ -12,7 +12,7 @@ defmodule YuriTemplate.ParameterExpander do
         acc
 
       {:ok, v} when is_binary(v) ->
-        [String.slice(v, 0, length), "=", to_string(var), ";" | acc]
+        [acc, ";", to_string(var), "=", String.slice(v, 0, length)]
     end
     |> expand(substitutes, vars)
   end
@@ -26,7 +26,7 @@ defmodule YuriTemplate.ParameterExpander do
         Enum.reduce(
           kvs,
           acc,
-          fn {k, v}, acc -> [encode(v), "=", k, ";" | acc] end
+          fn {k, v}, acc -> [acc, ";", k, "=", encode(v)] end
         )
 
       {:ok, vs} when is_list(vs) ->
@@ -35,7 +35,7 @@ defmodule YuriTemplate.ParameterExpander do
         Enum.reduce(
           vs,
           acc,
-          fn v, acc -> [encode(v), "=", k, ";" | acc] end
+          fn v, acc -> [acc, ";", k, "=", encode(v)] end
         )
     end
     |> expand(substitutes, vars)
@@ -47,23 +47,23 @@ defmodule YuriTemplate.ParameterExpander do
         acc
 
       {:ok, ""} ->
-        [to_string(var), ";" | acc]
+        [acc, ";", to_string(var)]
 
       {:ok, <<v::binary>>} when is_binary(v) ->
-        [encode(v), "=", to_string(var), ";" | acc]
+        [acc, ";", to_string(var), "=", encode(v)]
 
       {:ok, [{k, v} | kvs]} ->
         Enum.reduce(
           kvs,
-          [encode(v), ",", k, "=", to_string(var), ";" | acc],
-          fn {k, v}, acc -> [encode(v), ",", k, "," | acc] end
+          [acc, ";", to_string(var), "=", k, ",", encode(v)],
+          fn {k, v}, acc -> [acc, ",", k, ",", encode(v)] end
         )
 
       {:ok, [v | vs]} ->
         Enum.reduce(
           vs,
-          [encode(v), "=", to_string(var), ";" | acc],
-          fn v, acc -> [encode(v), "," | acc] end
+          [acc, ";", to_string(var), "=", encode(v)],
+          fn v, acc -> [acc, ",", encode(v)] end
         )
     end
     |> expand(substitutes, vars)
