@@ -12,8 +12,8 @@ defmodule YuriTemplate.MixProject do
         flags: [
           :error_handling,
           :no_opaque,
-          # :underspecs,
-          # :overspecs,
+          :underspecs,
+          :overspecs,
           :race_conditions
         ]
       ],

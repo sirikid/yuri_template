@@ -46,7 +46,7 @@ defmodule YuriTemplate.RFC6570 do
     expand_acc([], template, substitutes)
   end
 
-  @spec expand_acc([iodata], t, Access.t()) :: [iodata]
+  @spec expand_acc(iodata, t, Access.t()) :: iodata
   defp expand_acc(acc, template, substitutes) do
     case template do
       nil ->
