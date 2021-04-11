@@ -16,17 +16,36 @@ defmodule YuriTemplate.RFC6570 do
 
   @typep varspec :: atom | {:explode, atom} | {:prefix, atom, 1..10_000}
 
+  @type name_conv :: :binary | :atom | :existing_atom | [atom]
+
   require NimbleParsec
-  NimbleParsec.defparsec(:parse1, YuriTemplate.Parsec.uri_template())
+  NimbleParsec.defparsecp(:parse_binary, YuriTemplate.Parsec.uri_template({Function, :identity, []}))
+  NimbleParsec.defparsecp(:parse_atom, YuriTemplate.Parsec.uri_template({String, :to_atom, []}))
+  NimbleParsec.defparsecp(:parse_existing_atom, YuriTemplate.Parsec.uri_template({String, :to_existing_atom, []}))
 
   @doc """
   Parses the given string to the `t:t/0`.
+
+  Second argument describes how to convert variable names.
+  - `:binary` - no additional conversion, safest option.
+  - `:atom` - `String.to_atom/1` applied, usafe option.
+  - `:existring_atom` or any list - `String.to_existing_atom/1`
+    applied. You can use list of atoms to ensure that all atoms you
+    need already exist at conversion time.
   """
-  @spec parse(String.t()) :: {:ok, t} | {:error, term}
-  def parse(str) do
+  @spec parse(String.t(), name_conv) :: {:ok, t} | {:error, term}
+  def parse(str, name_conv \\ :atom) do
     alias YuriTemplate.ParseError
 
-    case parse1(str) do
+    result =
+      case name_conv do
+        :binary -> parse_binary(str)
+        :atom -> parse_atom(str)
+        :existing_atom -> parse_existing_atom(str)
+        atoms when is_list(atoms) -> parse_existing_atom(str)
+      end
+
+    case result do
       {:ok, acc, "", _context, _position, _offset} ->
         {:ok, acc}
 

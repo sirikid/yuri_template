@@ -43,21 +43,21 @@ defmodule YuriTemplate.Parsec do
     |> ascii_string([?a..?z, ?A..?Z, ?0..?9, ?_], min: 1)
   end
 
-  def varname(prev \\ empty()) do
+  def varname(prev \\ empty(), name_conv) do
     prev
     |> varchar()
     |> repeat(varchar(ascii_string([?.], 1)))
     |> wrap()
     |> map({IO, :iodata_to_binary, []})
-    |> map({String, :to_atom, []})
+    |> map(name_conv)
   end
 
-  def varspec(prev \\ empty()) do
+  def varspec(prev \\ empty(), name_conv) do
     prev
     |> choice([
-      varname() |> prefix() |> wrap() |> map({__MODULE__, :make_prefix, []}),
-      varname() |> explode() |> unwrap_and_tag(:explode),
-      varname()
+      varname(name_conv) |> prefix() |> wrap() |> map({__MODULE__, :make_prefix, []}),
+      varname(name_conv) |> explode() |> unwrap_and_tag(:explode),
+      varname(name_conv)
     ])
   end
 
@@ -65,23 +65,23 @@ defmodule YuriTemplate.Parsec do
     {:prefix, var, length}
   end
 
-  def variable_list(prev \\ empty()) do
+  def variable_list(prev \\ empty(), name_conv) do
     prev
-    |> varspec()
+    |> varspec(name_conv)
     |> repeat(
       ignore(ascii_char([?,]))
-      |> varspec()
+      |> varspec(name_conv)
     )
   end
 
-  def expression(prev \\ empty()) do
+  def expression(prev \\ empty(), name_conv) do
     prev
     |> ignore(ascii_char([?{]))
     |> optional(operator())
-    |> concat(variable_list())
+    |> concat(variable_list(name_conv))
     |> ignore(ascii_char([?}]))
     |> wrap()
   end
 
-  def uri_template, do: repeat(choice([expression(), literal()]))
+  def uri_template(name_conv), do: repeat(choice([expression(name_conv), literal()]))
 end

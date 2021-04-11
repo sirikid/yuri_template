@@ -5,8 +5,8 @@ defmodule YuriTemplate do
 
   alias YuriTemplate.RFC6570
 
-  @spec parse(String.t()) :: {:ok, RFC6570.t()} | {:error, term}
-  defdelegate parse(str), to: RFC6570
+  @spec parse(String.t(), RFC6570.name_conv()) :: {:ok, RFC6570.t()} | {:error, term}
+  defdelegate parse(str, name_conv \\ :atom), to: RFC6570
 
   @doc """
   Parses (if necessary) and expands the template.
