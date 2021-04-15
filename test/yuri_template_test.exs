@@ -43,4 +43,14 @@ defmodule YuriTemplateTest do
     {:ok, template} = YuriTemplate.RFC6570.parse("{.x,y,z}")
     assert match?(_, YuriTemplate.expand!(template, []))
   end
+
+  test "parameters/1 #1" do
+    {:ok, template} = YuriTemplate.parse("{foo,bar*,baz:10}")
+    assert [:foo, :bar, :baz] == YuriTemplate.parameters(template)
+  end
+
+  test "parameters/1 #2" do
+    {:ok, template} = YuriTemplate.parse("http://example.com/people/{first_name}-{last_name}")
+    assert [:first_name, :last_name] == YuriTemplate.parameters(template)
+  end
 end

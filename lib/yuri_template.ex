@@ -8,6 +8,9 @@ defmodule YuriTemplate do
   @spec parse(String.t(), RFC6570.name_conv()) :: {:ok, RFC6570.t()} | {:error, term}
   defdelegate parse(str, name_conv \\ :atom), to: RFC6570
 
+  @spec parameters(RFC6570.t()) :: [atom] | [String.t()]
+  defdelegate parameters(template), to: RFC6570
+
   @doc """
   Parses (if necessary) and expands the template.
 

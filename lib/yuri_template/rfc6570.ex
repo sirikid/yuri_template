@@ -19,9 +19,18 @@ defmodule YuriTemplate.RFC6570 do
   @type name_conv :: :binary | :atom | :existing_atom | [atom]
 
   require NimbleParsec
-  NimbleParsec.defparsecp(:parse_binary, YuriTemplate.Parsec.uri_template({Function, :identity, []}))
+
+  NimbleParsec.defparsecp(
+    :parse_binary,
+    YuriTemplate.Parsec.uri_template({Function, :identity, []})
+  )
+
   NimbleParsec.defparsecp(:parse_atom, YuriTemplate.Parsec.uri_template({String, :to_atom, []}))
-  NimbleParsec.defparsecp(:parse_existing_atom, YuriTemplate.Parsec.uri_template({String, :to_existing_atom, []}))
+
+  NimbleParsec.defparsecp(
+    :parse_existing_atom,
+    YuriTemplate.Parsec.uri_template({String, :to_existing_atom, []})
+  )
 
   @doc """
   Parses the given string to the `t:t/0`.
@@ -52,9 +61,26 @@ defmodule YuriTemplate.RFC6570 do
       {:ok, _acc, rest, context, position, offset} ->
         {:error, ParseError.new("expected end of string", rest, context, position, offset)}
 
-      # {:error, reason, rest, context, position, offset} ->
-      #   {:error, ParseError.new(inspect(reason), rest, context, position, offset)}
+        # {:error, reason, rest, context, position, offset} ->
+        #   {:error, ParseError.new(inspect(reason), rest, context, position, offset)}
     end
+  end
+
+  @doc "Return all variables from the template."
+  @spec parameters(t()) :: [atom] | [String.t()]
+  def parameters(template) do
+    template
+    |> Enum.flat_map(fn
+      lit when is_binary(lit) -> []
+      [op | vars] when is_op(op) and is_list(vars) -> vars
+      vars when is_list(vars) -> vars
+    end)
+    |> Enum.map(fn
+      {:explode, var} -> var
+      {:prefix, var, _length} -> var
+      var -> var
+    end)
+    |> Enum.uniq()
   end
 
   @doc """
