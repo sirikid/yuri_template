@@ -26,11 +26,11 @@ defmodule YuriTemplate.PathExpanderTest do
     alias YuriTemplate, as: YT
 
     test "expoding list values escaping" do
-      assert YT.expand!("{/list*}", list: ~w(; . ,)) == "/%3B/./%2C"
+      assert YT.expand!("{/list*}", %{"list" => ~w(; . ,)}) == "/%3B/./%2C"
     end
 
     test "list values escaping" do
-      assert YT.expand!("{/list}", list: ~w(; . ,)) == "/%3B,.,%2C"
+      assert YT.expand!("{/list}", %{"list" => ~w(; . ,)}) == "/%3B,.,%2C"
     end
   end
 end

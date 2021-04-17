@@ -1,24 +1,26 @@
 ExUnit.start(colors: [enabled: false])
 
 defmodule ExpanderTest do
-  @substitutes [
-    count: ["one", "two", "three"],
-    dom: ["example", "com"],
-    dub: "me/too",
-    hello: "Hello World!",
-    half: "50%",
-    var: "value",
-    who: "fred",
-    base: "http://example.com/home/",
-    path: "/foo/bar",
-    list: ["red", "green", "blue"],
-    keys: [{"semi", ";"}, {"dot", "."}, {"comma", ","}],
-    v: "6",
-    x: "1024",
-    y: "768",
-    empty: "",
-    empty_keys: []
-  ]
+  @substitutes (quote do
+                  %{
+                    "count" => ["one", "two", "three"],
+                    "dom" => ["example", "com"],
+                    "dub" => "me/too",
+                    "hello" => "Hello World!",
+                    "half" => "50%",
+                    "var" => "value",
+                    "who" => "fred",
+                    "base" => "http://example.com/home/",
+                    "path" => "/foo/bar",
+                    "list" => ["red", "green", "blue"],
+                    "keys" => [{"semi", ";"}, {"dot", "."}, {"comma", ","}],
+                    "v" => "6",
+                    "x" => "1024",
+                    "y" => "768",
+                    "empty" => "",
+                    "empty_keys" => []
+                  }
+                end)
 
   defmacro __using__(cases: cases) do
     quote do

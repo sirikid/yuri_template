@@ -3,6 +3,8 @@ defmodule YuriTemplate.Expander do
   The most common interface for the template expander.
   """
 
+  @type t :: module | {module, function} | (iodata, Access.t(), spec -> iodata)
+
   @typedoc """
   Variable list specification.
   """

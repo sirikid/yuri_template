@@ -31,7 +31,7 @@ defmodule YuriTemplate.QueryContinuationExpanderTest do
     alias YuriTemplate, as: YT
 
     test "truncated variable escaping" do
-      assert YT.expand!("{&v:4}", v: ",.,.xxxx") == "&v=%2C.%2C."
+      assert YT.expand!("{&v:4}", %{"v" => ",.,.xxxx"}) == "&v=%2C.%2C."
     end
   end
 end

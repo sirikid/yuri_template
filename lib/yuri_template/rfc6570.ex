@@ -7,30 +7,16 @@ defmodule YuriTemplate.RFC6570 do
   Internal template representation. Subject to change at any time
   without prior notice.
   """
-  @opaque t :: [String.t() | varlist]
+  @opaque t :: [String.t() | {module, varlist}]
 
-  @typep varlist :: [op | varspec]
-
-  @typep op :: ?+ | ?\# | ?. | ?/ | ?; | ?? | ?&
-  defguardp is_op(op) when op in '+#?./;?&'
+  @typep varlist :: [varspec]
 
   @typep varspec :: atom | {:explode, atom} | {:prefix, atom, 1..10_000}
 
   @type name_conv :: :binary | :atom | :existing_atom | [atom]
 
   require NimbleParsec
-
-  NimbleParsec.defparsecp(
-    :parse_binary,
-    YuriTemplate.Parsec.uri_template({Function, :identity, []})
-  )
-
-  NimbleParsec.defparsecp(:parse_atom, YuriTemplate.Parsec.uri_template({String, :to_atom, []}))
-
-  NimbleParsec.defparsecp(
-    :parse_existing_atom,
-    YuriTemplate.Parsec.uri_template({String, :to_existing_atom, []})
-  )
+  NimbleParsec.defparsec(:parse1, YuriTemplate.Parsec.rfc6570())
 
   @doc """
   Parses the given string to the `t:t/0`.
@@ -45,20 +31,15 @@ defmodule YuriTemplate.RFC6570 do
     you need already exist.
   """
   @spec parse(String.t(), name_conv) :: {:ok, t} | {:error, term}
-  def parse(str, name_conv \\ :atom) do
+  def parse(str, _name_conv \\ :atom) do
     alias YuriTemplate.ParseError
 
-    result =
-      case name_conv do
-        :binary -> parse_binary(str)
-        :atom -> parse_atom(str)
-        :existing_atom -> parse_existing_atom(str)
-        atoms when is_list(atoms) -> parse_existing_atom(str)
-      end
-
-    case result do
+    case parse1(str) do
       {:ok, acc, "", _context, _position, _offset} ->
         {:ok, acc}
+
+      {:ok, _acc, "{" <> rest, context, position, offset} ->
+        {:error, ParseError.new("unterminated expression", rest, context, position, offset)}
 
       {:ok, _acc, rest, context, position, offset} ->
         {:error, ParseError.new("expected end of string", rest, context, position, offset)}
@@ -74,8 +55,7 @@ defmodule YuriTemplate.RFC6570 do
     template
     |> Enum.flat_map(fn
       lit when is_binary(lit) -> []
-      [op | vars] when is_op(op) and is_list(vars) -> vars
-      vars when is_list(vars) -> vars
+      {_expander, vars} -> vars
     end)
     |> Enum.map(fn
       {:explode, var} -> var
@@ -106,32 +86,10 @@ defmodule YuriTemplate.RFC6570 do
         [acc, literal]
         |> expand_acc(template, substitutes)
 
-      [[op | varlist] | template] when is_op(op) and is_list(varlist) ->
+      [{expander, varlist} | template] ->
         acc
-        |> expand_varlist(op, varlist, substitutes)
-        |> expand_acc(template, substitutes)
-
-      [varlist | template] when is_list(varlist) ->
-        acc
-        |> expand_varlist(nil, varlist, substitutes)
+        |> expander.expand(substitutes, varlist)
         |> expand_acc(template, substitutes)
     end
-  end
-
-  @spec expand_varlist(iodata, op | nil, varlist, Access.t()) :: iodata
-  defp expand_varlist(acc, op, varlist, substitutes) do
-    alias YuriTemplate, as: YT
-
-    case op do
-      nil -> YT.SimpleExpander
-      ?\+ -> YT.ReservedExpander
-      ?\# -> YT.FragmentExpander
-      ?\. -> YT.LabelExpander
-      ?\/ -> YT.PathExpander
-      ?\; -> YT.ParameterExpander
-      ?\? -> YT.QueryExpander
-      ?\& -> YT.QueryContinuationExpander
-    end
-    |> apply(:expand, [acc, substitutes, varlist])
   end
 end
