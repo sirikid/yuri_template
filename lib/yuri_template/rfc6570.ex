@@ -36,11 +36,13 @@ defmodule YuriTemplate.RFC6570 do
   Parses the given string to the `t:t/0`.
 
   Second argument describes how to convert variable names.
-  - `:binary` - no additional conversion, safest option.
-  - `:atom` - `String.to_atom/1` applied, usafe option.
-  - `:existring_atom` or any list - `String.to_existing_atom/1`
-    applied. You can use list of atoms to ensure that all atoms you
-    need already exist at conversion time.
+  - `:atom` - default, potentially unsafe. Names converted using
+    `String.to_atom/1`.
+  - `:binary` - no conversion, safe option.
+  - `:existring_atom` or any list - more safe alternative to `:atom`,
+    names converted using `String.to_existing_atom/1`. You can use
+    list of atoms instead of `:existing_atom` to ensure that all atoms
+    you need already exist.
   """
   @spec parse(String.t(), name_conv) :: {:ok, t} | {:error, term}
   def parse(str, name_conv \\ :atom) do
