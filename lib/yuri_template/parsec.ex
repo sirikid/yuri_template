@@ -1,7 +1,66 @@
 defmodule YuriTemplate.Parsec do
-  @moduledoc false
+  @moduledoc ""
 
   import NimbleParsec
+  alias YuriTemplate, as: YT
+
+  @doc """
+  Full RFC6570 support.
+  All operators allowed (no op, levels 2, 3 and reserved).
+  """
+  @spec rfc6570 :: NimbleParsec.t()
+  def rfc6570 do
+    repeat(
+      choice([
+        literal(),
+        expansion("", YT.SimpleExpander),
+        # op-level2
+        expansion("+", YT.ReservedExpander),
+        expansion("#", YT.FragmentExpander),
+        # op-level3
+        expansion(".", YT.LabelExpander),
+        expansion("/", YT.PathExpander),
+        expansion(";", YT.ParameterExpander),
+        expansion("?", YT.QueryExpander),
+        expansion("&", YT.QueryContinuationExpander),
+        # op-reserve
+        expansion("=", YT.UndefinedExpander),
+        expansion(",", YT.UndefinedExpander),
+        expansion("!", YT.UndefinedExpander),
+        expansion("@", YT.UndefinedExpander),
+        expansion("|", YT.UndefinedExpander)
+      ])
+    )
+  end
+
+  @doc """
+  Restricted RFC6570, only meaningful operators allowed.
+  """
+  @spec rfc6570_restricted :: NimbleParsec.t()
+  def rfc6570_restricted do
+    repeat(
+      choice([
+        literal(),
+        expansion("", YT.SimpleExpander),
+        # op-level2
+        expansion("+", YT.ReservedExpander),
+        expansion("#", YT.FragmentExpander),
+        # op-level3
+        expansion(".", YT.LabelExpander),
+        expansion("/", YT.PathExpander),
+        expansion(";", YT.ParameterExpander),
+        expansion("?", YT.QueryExpander),
+        expansion("&", YT.QueryContinuationExpander)
+      ])
+    )
+  end
+
+  @spec literal(NimbleParsec.t()) :: NimbleParsec.t()
+  def literal(prev \\ empty()) do
+    prev
+    |> ascii_string([not: ?{, not: ?}], min: 1)
+    |> label("literal")
+  end
 
   @spec expansion(NimbleParsec.t(), String.t(), YuriTemplate.Expander.t()) :: NimbleParsec.t()
   def expansion(prev \\ empty(), prefix, expander) do
@@ -39,10 +98,12 @@ defmodule YuriTemplate.Parsec do
     |> label("varspec")
   end
 
+  @doc false
   def varspec_explode(varname) do
     {:explode, varname}
   end
 
+  @doc false
   def varspec_truncate([varname, max_length]) do
     {:prefix, varname, max_length}
   end
@@ -79,59 +140,4 @@ defmodule YuriTemplate.Parsec do
     |> map({IO, :iodata_to_binary, []})
     |> label("percent encoded")
   end
-
-  def literal do
-    ascii_string([not: ?{, not: ?}], min: 1)
-    |> label("literal")
-  end
-
-  def rfc6570 do
-    alias YuriTemplate, as: YT
-
-    repeat(
-      choice([
-        literal(),
-        expansion("", YT.SimpleExpander),
-        expansion("+", YT.ReservedExpander),
-        expansion("#", YT.FragmentExpander),
-        expansion(".", YT.LabelExpander),
-        expansion("/", YT.PathExpander),
-        expansion(";", YT.ParameterExpander),
-        expansion("?", YT.QueryExpander),
-        expansion("&", YT.QueryContinuationExpander)
-      ])
-    )
-  end
-
-  def operator_level_2(prev \\ empty()), do: prev |> choice(Enum.map('+#', &ascii_char([&1])))
-
-  def operator_level_3(prev \\ empty()),
-    do: prev |> choice(Enum.map('./;?&', &ascii_char([&1])))
-
-  def operator_level_reserve(prev \\ empty()),
-    do: prev |> choice(Enum.map('=,!@|', &ascii_char([&1])))
-
-  def operator(prev \\ empty()) do
-    prev
-    |> choice([
-      operator_level_2(),
-      operator_level_3(),
-      operator_level_reserve()
-    ])
-  end
-
-  def max_length, do: integer(min: 1, max: 5)
-
-  def prefix(prev \\ empty()) do
-    prev
-    |> ignore(ascii_char([?:]))
-    |> concat(max_length())
-  end
-
-  def explode(prev \\ empty()) do
-    prev
-    |> ignore(ascii_char([?*]))
-  end
-
-  def modifier_level4, do: choice([prefix(), explode()])
 end
