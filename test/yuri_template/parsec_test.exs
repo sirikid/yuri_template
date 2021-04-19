@@ -11,6 +11,10 @@ defmodule YuriTemplate.ParsecTest.TestParsers do
   defparsec(:parse_varspec, varspec())
 
   defparsec(:parse_variable_list, variable_list())
+
+  defparsec(:parse_expansion, expansion("~w~", :parsec_test))
+
+  defparsec(:parse_literal, literal())
 end
 
 defmodule YuriTemplate.ParsecTest do
@@ -53,6 +57,25 @@ defmodule YuriTemplate.ParsecTest do
     assert match?(
              {:ok, ["foo", {:explode, "bar"}, {:prefix, "baz", 27}, "qux"], "", _, _, _},
              parse_variable_list("foo,bar*,baz:27,qux")
+           )
+  end
+
+  describe "expansion" do
+    assert match?(
+             {:ok, [{:parsec_test, ["qwe"]}], "", _, _, _},
+             parse_expansion("{~w~qwe}")
+           )
+
+    assert match?(
+             {:error, _, _, _, _, _},
+             parse_expansion("{x_xqwe}")
+           )
+  end
+
+  describe "literal" do
+    assert match?(
+             {:ok, ["hello, world!"], "", _, _, _},
+             parse_literal("hello, world!")
            )
   end
 end
