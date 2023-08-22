@@ -28,6 +28,9 @@ defmodule YuriTemplate.QueryExpander do
         value = if is_map(value), do: Enum.to_list(value), else: value
 
         case value do
+          [] ->
+            acc
+
           [{k1, v1} | kvs] ->
             Enum.reduce(
               kvs,

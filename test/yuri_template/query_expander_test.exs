@@ -21,4 +21,11 @@ defmodule YuriTemplate.QueryExpanderTest do
       {"{?keys,who}", "?keys=semi,%3B,dot,.,comma,%2C&who=fred"},
       {"{?list,half}", "?list=red,green,blue&half=50%25"}
     ]
+
+  test "empty keys explode" do
+    YuriTemplate.expand!(
+      "/category/{category_id}/{category_transliterate}/{page}{?specs*,per_page,sort,order}",
+      %{category_id: "1", category_transliterate: "x", page: "2", specs: []}
+    ) == "/category/1/x/2"
+  end
 end
