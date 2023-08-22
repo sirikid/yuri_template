@@ -25,12 +25,14 @@ defmodule YuriTemplate.QueryExpander do
         expand(acc, substitutes, vars)
 
       {:ok, value} ->
+        value = if is_map(value), do: Enum.to_list(value), else: value
+
         case value do
           [{k1, v1} | kvs] ->
             Enum.reduce(
               kvs,
-              [acc, "?", k1, "=", encode(v1)],
-              fn {k, v}, acc -> [acc, "&", k, "=", encode(v)] end
+              [acc, "?", to_string(k1), "=", encode(v1)],
+              fn {k, v}, acc -> [acc, "&", to_string(k), "=", encode(v)] end
             )
 
           [v1 | vs] ->
