@@ -15,7 +15,7 @@ defmodule YuriTemplate.QueryContinuationExpander do
         Enum.reduce(
           kvs,
           acc,
-          fn {k, v}, acc -> [acc, "&", k, "=", encode(v)] end
+          fn {k, v}, acc -> [acc, "&", to_string(k), "=", encode(v)] end
         )
 
       {:ok, vs} when is_list(vs) ->
